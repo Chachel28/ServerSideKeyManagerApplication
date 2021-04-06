@@ -12,7 +12,7 @@
     <artifactId>demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ServerSideKeyManagerApp</name>
-    <description>RESTful API designed to manage multiple clients requests</description>
+    <description>REST API designed to manage multiple clients requests</description>
     <properties>
         <java.version>11</java.version>
         <kotlin.version>1.4.31</kotlin.version>

@@ -33,6 +33,23 @@ class ReswueService {
     @Value("\${reswue.client_secret}")
     private lateinit var clientSecret: String
 
+    @Value("\${reswue.endpoint.authorize}")
+    private lateinit var endpointAuthorize: String
+
+    @Value("\${reswue.endpoint.token}")
+    private lateinit var endpointToken: String
+
+    fun getUrlToFindCode(): String {
+        return entryPoint
+            .plus(endpointAuthorize)
+            .plus("?client_id=")
+            .plus(clientId)
+            .plus("&redirect_uri=")
+            .plus(redirectUri)
+            .plus("&response_type=code&scope=")
+            .plus(scope)
+    }
+
     fun getAccessToken(code: String): AccessTokenResponseDTO? {
         val headers = HttpHeaders()
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -46,20 +63,11 @@ class ReswueService {
 
         val httpEntity = HttpEntity(map, headers)
         val response: ResponseEntity<AccessTokenResponseDTO> = restTemplate.exchange(
-                entryPoint.plus("/oauth/token"),
-                HttpMethod.POST,
-                httpEntity,
-                jacksonTypeRef<AccessTokenResponseDTO>())
+            entryPoint.plus(endpointToken),
+            HttpMethod.POST,
+            httpEntity,
+            jacksonTypeRef<AccessTokenResponseDTO>()
+        )
         return response.body
-    }
-
-    fun getUrlToFindCode(): String {
-        return entryPoint
-                .plus("/oauth/authorize?client_id=")
-                .plus(clientId)
-                .plus("&redirect_uri=")
-                .plus(redirectUri)
-                .plus("&response_type=code&scope=")
-                .plus(scope)
     }
 }
