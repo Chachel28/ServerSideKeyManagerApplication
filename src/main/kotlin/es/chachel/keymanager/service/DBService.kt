@@ -28,4 +28,16 @@ class DBService(private val portalRepository: PortalRepository,
         calendar.add(Calendar.DAY_OF_YEAR, 60)
         return calendar.time
     }
+
+    fun getExpireDate(id:Int): String {
+        return userRepository.findById(id).get().expireDate.toString()
+    }
+
+    fun getRefreshToken(id: Int): String {
+        return userRepository.findById(id).get().refresh_token
+    }
+
+    fun getAutToken(id: Int): String {
+        return userRepository.findById(id).get().token
+    }
 }

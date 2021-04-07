@@ -2,12 +2,12 @@ package es.chachel.keymanager.rest.controller
 
 import es.chachel.keymanager.db.KeyPerUser
 import es.chachel.keymanager.dto.AccessTokenRequestDTO
+import es.chachel.keymanager.dto.AccessTokenResponseDTO
+import es.chachel.keymanager.dto.OperationListDTO
 import es.chachel.keymanager.service.DBService
 import es.chachel.keymanager.service.ReswueService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -24,10 +24,29 @@ class RestController(private val dbService: DBService,
         return ResponseEntity.ok(reswueService.getUrlToFindCode())
     }
 
-    @PostMapping("/getAccessToken")
+    @PostMapping("/createReswueToken")
     fun getAccessToken(@RequestBody requestBody: AccessTokenRequestDTO): ResponseEntity<String> {
         val body = reswueService.getAccessToken(requestBody.code)
         dbService.saveToken(body, requestBody.user_id)
         return ResponseEntity.ok(body?.access_token)
+    }
+
+    @GetMapping("/expireDate/{id}")
+    fun getExpireDate(@PathVariable id: Int): ResponseEntity<String> {
+        return ResponseEntity.ok(dbService.getExpireDate(id))
+    }
+
+    @GetMapping("/refreshReswueToken/{id}")
+    fun refreshReswueToken(@PathVariable id:Int): ResponseEntity<AccessTokenResponseDTO> {
+        val refreshToken = dbService.getRefreshToken(id)
+        val body = reswueService.refreshTokenReswue(refreshToken)
+        dbService.saveToken(body, id)
+        return ResponseEntity.ok(body)
+    }
+
+    @GetMapping("/operations/{id}")
+    fun getOperationList(@PathVariable id: Int): ResponseEntity<OperationListDTO> {
+        val token = dbService.getAutToken(id)
+        return ResponseEntity.ok(reswueService.getOperationList(token))
     }
 }
