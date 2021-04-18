@@ -27,4 +27,6 @@ interface UserRepository : JpaRepository<User, Int> {
     @Modifying
     @Query("update User u set u.token=:accessToken, u.refresh_token=:refreshToken, u.expireDate=:expireDate where u.user_id=:userId")
     fun updateAccessAndRefreshToken(userId: Int, accessToken: String?, refreshToken: String?, expireDate: Date?)
+
+    fun findByUsername(username: String):User
 }

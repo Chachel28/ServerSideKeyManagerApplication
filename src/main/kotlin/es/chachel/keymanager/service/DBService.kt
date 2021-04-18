@@ -1,9 +1,6 @@
 package es.chachel.keymanager.service
 
-import es.chachel.keymanager.db.KeyPerUser
-import es.chachel.keymanager.db.KeyPerUserRepository
-import es.chachel.keymanager.db.PortalRepository
-import es.chachel.keymanager.db.UserRepository
+import es.chachel.keymanager.db.*
 import es.chachel.keymanager.dto.AccessTokenResponseDTO
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -39,5 +36,9 @@ class DBService(private val portalRepository: PortalRepository,
 
     fun getAutToken(id: Int): String {
         return userRepository.findById(id).get().token
+    }
+
+    fun saveUser(user: User): User {
+        return userRepository.save(user)
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
-import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 @Service
 @PropertySource("/reswue.properties")
@@ -100,7 +99,7 @@ class ReswueService {
     }
 
     fun getOperationList(token: String): OperationListDTO? {
-        val headers=HttpHeaders()
+        val headers = HttpHeaders()
         headers.set("Authorization", "Bearer ".plus(token))
 
         val request = HttpEntity(null, headers)
