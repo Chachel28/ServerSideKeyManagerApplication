@@ -8,12 +8,14 @@ import es.chachel.keymanager.dto.OperationListDTO
 import es.chachel.keymanager.security.WebSecurityConfiguration
 import es.chachel.keymanager.service.DBService
 import es.chachel.keymanager.service.ReswueService
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@RequestMapping("/api/v1")
 class RestController(private val dbService: DBService,
                      private val reswueService: ReswueService,
                      private val bCryptPasswordEncoder: BCryptPasswordEncoder) {

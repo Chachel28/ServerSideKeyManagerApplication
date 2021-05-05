@@ -7,11 +7,13 @@ import java.time.Instant
 import java.util.*
 
 @Service
-class DBService(private val portalRepository: PortalRepository,
-                private val userRepository: UserRepository,
-                private val keyPerUserRepository: KeyPerUserRepository) {
+class DBService(
+    private val portalRepository: PortalRepository,
+    private val userRepository: UserRepository,
+    private val keyPerUserRepository: KeyPerUserRepository
+) {
 
-    fun getAllKeys():List<KeyPerUser>{
+    fun getAllKeys(): List<KeyPerUser> {
         return keyPerUserRepository.findAll()
     }
 
@@ -26,7 +28,7 @@ class DBService(private val portalRepository: PortalRepository,
         return calendar.time
     }
 
-    fun getExpireDate(id:Int): String {
+    fun getExpireDate(id: Int): String {
         return userRepository.findById(id).get().expireDate.toString()
     }
 
