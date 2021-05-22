@@ -43,4 +43,8 @@ class DBService(
     fun saveUser(user: User): User {
         return userRepository.save(user)
     }
+
+    fun getAllUsers(): List<User> {
+        return userRepository.findAll();
+    }
 }

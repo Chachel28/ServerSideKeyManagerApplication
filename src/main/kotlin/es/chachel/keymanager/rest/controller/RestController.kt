@@ -27,6 +27,11 @@ class RestController(private val dbService: DBService,
         return ResponseEntity.ok(newUser)
     }
 
+    @GetMapping("/user")
+    fun getAllUsers(): ResponseEntity<List<User>> {
+        return ResponseEntity.ok(dbService.getAllUsers());
+    }
+
     @GetMapping("/getAllKeys")
     fun getAllKeys(): ResponseEntity<List<KeyPerUser>> {
         return ResponseEntity.ok(dbService.getAllKeys())
