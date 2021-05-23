@@ -54,7 +54,9 @@ class AuthenticationRequest(@get:JvmName("getAuthenticationManager_") private va
         response.addHeader("Access-Control-Expose-Headers", "Authorization")
     }
 
+    //TODO: Añadir un filtro para usuarios validados
+
     init {
-        setFilterProcessesUrl("/login")
+        setFilterProcessesUrl("/api/v1/login")
     }
 }
