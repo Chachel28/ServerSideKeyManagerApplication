@@ -18,7 +18,7 @@ data class User(
         var email: String = "",
         var token: String = "",
         var refresh_token: String = "",
-        var expireDate: Date = Date(),
+        var expireDate: Date? = null,
         var validated: Boolean = false
 )
 

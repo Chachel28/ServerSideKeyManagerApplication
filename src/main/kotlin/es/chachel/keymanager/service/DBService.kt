@@ -2,6 +2,7 @@ package es.chachel.keymanager.service
 
 import es.chachel.keymanager.db.*
 import es.chachel.keymanager.dto.AccessTokenResponseDTO
+import es.chachel.keymanager.dto.UserDTO
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*
@@ -28,8 +29,9 @@ class DBService(
         return calendar.time
     }
 
-    fun getExpireDate(id: Int): String {
-        return userRepository.findById(id).get().expireDate.toString()
+    fun getExpireDate(username: String): Date? {
+        val user = userRepository.findByUsername(username)
+        return user.expireDate
     }
 
     fun getRefreshToken(id: Int): String {
@@ -45,6 +47,11 @@ class DBService(
     }
 
     fun getAllUsers(): List<User> {
-        return userRepository.findAll();
+        return userRepository.findAll()
+    }
+
+    fun getUser(username: String): UserDTO {
+        val user = userRepository.findByUsername(username)
+        return UserDTO(user.user_id, user.username, user.email, user.validated)
     }
 }

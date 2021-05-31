@@ -5,6 +5,7 @@ import es.chachel.keymanager.db.User
 import es.chachel.keymanager.dto.AccessTokenRequestDTO
 import es.chachel.keymanager.dto.AccessTokenResponseDTO
 import es.chachel.keymanager.dto.OperationListDTO
+import es.chachel.keymanager.dto.UserDTO
 import es.chachel.keymanager.security.WebSecurityConfiguration
 import es.chachel.keymanager.service.DBService
 import es.chachel.keymanager.service.ReswueService
@@ -13,12 +14,16 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
+import java.time.Instant
+import java.util.*
 
 @RestController
 @RequestMapping("/api/v1")
-class RestController(private val dbService: DBService,
-                     private val reswueService: ReswueService,
-                     private val bCryptPasswordEncoder: BCryptPasswordEncoder) {
+class RestController(
+    private val dbService: DBService,
+    private val reswueService: ReswueService,
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
+) {
 
     @PostMapping("/user")
     fun saveUser(@RequestBody user: User): ResponseEntity<User> {
@@ -30,6 +35,11 @@ class RestController(private val dbService: DBService,
     @GetMapping("/user")
     fun getAllUsers(): ResponseEntity<List<User>> {
         return ResponseEntity.ok(dbService.getAllUsers());
+    }
+
+    @GetMapping("/user/{username}")
+    fun getUser(@PathVariable username: String): ResponseEntity<UserDTO> {
+        return ResponseEntity.ok(dbService.getUser(username));
     }
 
     @GetMapping("/getAllKeys")
@@ -49,13 +59,21 @@ class RestController(private val dbService: DBService,
         return ResponseEntity.ok(body?.access_token)
     }
 
-    @GetMapping("/expireDate/{id}")
-    fun getExpireDate(@PathVariable id: Int): ResponseEntity<String> {
-        return ResponseEntity.ok(dbService.getExpireDate(id))
+    @GetMapping("/isReswueOutdated/{username}")
+    fun isReswueOutdated(@PathVariable username: String): ResponseEntity<Boolean> {
+        val expireDate = dbService.getExpireDate(username)
+        if (expireDate != null) {
+            return if (Date.from(Instant.now()).after(expireDate)) {
+                ResponseEntity.ok(true)
+            } else {
+                ResponseEntity.ok(false)
+            }
+        }
+        return ResponseEntity.notFound().build()
     }
 
     @GetMapping("/refreshReswueToken/{id}")
-    fun refreshReswueToken(@PathVariable id:Int): ResponseEntity<AccessTokenResponseDTO> {
+    fun refreshReswueToken(@PathVariable id: Int): ResponseEntity<AccessTokenResponseDTO> {
         val refreshToken = dbService.getRefreshToken(id)
         val body = reswueService.refreshTokenReswue(refreshToken)
         dbService.saveToken(body, id)
