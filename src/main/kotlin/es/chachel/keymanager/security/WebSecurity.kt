@@ -29,6 +29,7 @@ class WebSecurityConfiguration(
             .authorizeRequests()
             .antMatchers(HttpMethod.POST, "/api/v1/user").permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/user").permitAll()
+            .antMatchers(HttpMethod.GET, "/getUrlReswue.html").permitAll()
             .anyRequest().authenticated()
             .and().addFilter(AuthenticationRequest(authenticationManager()))
             .addFilter(Authorization(authenticationManager()))

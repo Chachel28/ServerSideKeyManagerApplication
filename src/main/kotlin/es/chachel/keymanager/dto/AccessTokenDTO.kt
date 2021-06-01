@@ -9,5 +9,5 @@ data class AccessTokenResponseDTO(
 
 data class AccessTokenRequestDTO(
     val code: String,
-    val user_id: Int
+    val user_name: String
 )

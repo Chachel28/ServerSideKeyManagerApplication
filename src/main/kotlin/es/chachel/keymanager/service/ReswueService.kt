@@ -2,6 +2,7 @@ package es.chachel.keymanager.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import es.chachel.keymanager.dto.AccessTokenResponseDTO
+import es.chachel.keymanager.dto.AgentInfoDTO
 import es.chachel.keymanager.dto.OperationListDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
@@ -45,6 +46,9 @@ class ReswueService {
 
     @Value("\${reswue.endpoint.operations}")
     private lateinit var endpointOperations: String
+
+    @Value("\${reswue.endpoint.agent}")
+    private lateinit var endpointAgent: String
 
     fun getUrlToFindCode(): String {
         return entryPoint
@@ -108,6 +112,20 @@ class ReswueService {
             HttpMethod.GET,
             request,
             jacksonTypeRef<OperationListDTO>()
+        )
+        return response.body
+    }
+
+    fun getAgentInfo(token: String): AgentInfoDTO? {
+        val headers = HttpHeaders()
+        headers.set("Authorization", "Bearer ".plus(token))
+
+        val request = HttpEntity(null, headers)
+        val response: ResponseEntity<AgentInfoDTO> = restTemplate.exchange(
+            entryPoint.plus(endpointAgent),
+            HttpMethod.GET,
+            request,
+            jacksonTypeRef<AgentInfoDTO>()
         )
         return response.body
     }

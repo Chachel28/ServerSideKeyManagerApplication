@@ -18,8 +18,9 @@ class DBService(
         return keyPerUserRepository.findAll()
     }
 
-    fun saveToken(body: AccessTokenResponseDTO?, userId: Int) {
+    fun saveToken(body: AccessTokenResponseDTO?, username: String) {
         val expireDate = calculateExpireDate()
+        val userId = userRepository.findByUsername(username).user_id
         userRepository.updateAccessAndRefreshToken(userId, body?.access_token, body?.refresh_token, expireDate)
     }
 
@@ -34,11 +35,11 @@ class DBService(
         return user.expireDate
     }
 
-    fun getRefreshToken(id: Int): String {
-        return userRepository.findById(id).get().refresh_token
+    fun getRefreshToken(username: String): String {
+        return userRepository.findByUsername(username).refresh_token
     }
 
-    fun getAutToken(id: Int): String {
+    fun getAutToken(id: Int): String? {
         return userRepository.findById(id).get().token
     }
 

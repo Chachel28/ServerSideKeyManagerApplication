@@ -29,5 +29,5 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-reswue.properties
+*.properties
 docker-compose.yml

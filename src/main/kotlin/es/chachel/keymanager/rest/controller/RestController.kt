@@ -2,10 +2,7 @@ package es.chachel.keymanager.rest.controller
 
 import es.chachel.keymanager.db.KeyPerUser
 import es.chachel.keymanager.db.User
-import es.chachel.keymanager.dto.AccessTokenRequestDTO
-import es.chachel.keymanager.dto.AccessTokenResponseDTO
-import es.chachel.keymanager.dto.OperationListDTO
-import es.chachel.keymanager.dto.UserDTO
+import es.chachel.keymanager.dto.*
 import es.chachel.keymanager.security.WebSecurityConfiguration
 import es.chachel.keymanager.service.DBService
 import es.chachel.keymanager.service.ReswueService
@@ -16,6 +13,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.util.*
+import java.util.logging.Logger
 
 @RestController
 @RequestMapping("/api/v1")
@@ -39,7 +37,13 @@ class RestController(
 
     @GetMapping("/user/{username}")
     fun getUser(@PathVariable username: String): ResponseEntity<UserDTO> {
-        return ResponseEntity.ok(dbService.getUser(username));
+        val user = dbService.getUser(username)
+        val token = dbService.getAutToken(user.user_id)
+        if(!token.isNullOrEmpty()){
+            val agentInfo = reswueService.getAgentInfo(token)
+            user.avatar = agentInfo?.avatar!!
+        }
+        return ResponseEntity.ok(user)
     }
 
     @GetMapping("/getAllKeys")
@@ -47,7 +51,7 @@ class RestController(
         return ResponseEntity.ok(dbService.getAllKeys())
     }
 
-    @GetMapping("/entrypoint")
+    @GetMapping("/reswueURL")
     fun getEntryPoint(): ResponseEntity<String> {
         return ResponseEntity.ok(reswueService.getUrlToFindCode())
     }
@@ -55,7 +59,7 @@ class RestController(
     @PostMapping("/createReswueToken")
     fun getAccessToken(@RequestBody requestBody: AccessTokenRequestDTO): ResponseEntity<String> {
         val body = reswueService.getAccessToken(requestBody.code)
-        dbService.saveToken(body, requestBody.user_id)
+        dbService.saveToken(body, requestBody.user_name)
         return ResponseEntity.ok(body?.access_token)
     }
 
@@ -72,17 +76,17 @@ class RestController(
         return ResponseEntity.notFound().build()
     }
 
-    @GetMapping("/refreshReswueToken/{id}")
-    fun refreshReswueToken(@PathVariable id: Int): ResponseEntity<AccessTokenResponseDTO> {
-        val refreshToken = dbService.getRefreshToken(id)
+    @GetMapping("/refreshReswueToken/{username}")
+    fun refreshReswueToken(@PathVariable username: String): ResponseEntity<AccessTokenResponseDTO> {
+        val refreshToken = dbService.getRefreshToken(username)
         val body = reswueService.refreshTokenReswue(refreshToken)
-        dbService.saveToken(body, id)
+        dbService.saveToken(body, username)
         return ResponseEntity.ok(body)
     }
 
     @GetMapping("/operations/{id}")
     fun getOperationList(@PathVariable id: Int): ResponseEntity<OperationListDTO> {
         val token = dbService.getAutToken(id)
-        return ResponseEntity.ok(reswueService.getOperationList(token))
+        return ResponseEntity.ok(reswueService.getOperationList(token!!))
     }
 }
