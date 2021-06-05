@@ -2,6 +2,7 @@ package es.chachel.keymanager.service
 
 import es.chachel.keymanager.db.*
 import es.chachel.keymanager.dto.AccessTokenResponseDTO
+import es.chachel.keymanager.dto.PortalData
 import es.chachel.keymanager.dto.UserDTO
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -54,5 +55,31 @@ class DBService(
     fun getUser(username: String): UserDTO {
         val user = userRepository.findByUsername(username)
         return UserDTO(user.user_id, user.username, user.email, user.validated)
+    }
+
+    fun checkPortal(guid: String): Boolean {
+        val portal = portalRepository.findByGuid(guid)
+        if (portal != null) {
+            return true
+        }
+        return false
+    }
+
+    fun getIDPortal(guid: String): Int {
+        val portal = portalRepository.findByGuid(guid)
+        if (portal != null) {
+            return portal.portal_id
+        }
+        return 0
+    }
+
+    fun savePortal(portalData: PortalData): Portal {
+        val portal = Portal(
+            portal_name = portalData.name,
+            latitude = portalData.lat.toFloat(),
+            longitude = portalData.lng.toFloat(),
+            guid = portalData.guid
+        )
+        return portalRepository.save(portal)
     }
 }

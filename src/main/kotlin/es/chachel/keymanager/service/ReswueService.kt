@@ -1,9 +1,7 @@
 package es.chachel.keymanager.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import es.chachel.keymanager.dto.AccessTokenResponseDTO
-import es.chachel.keymanager.dto.AgentInfoDTO
-import es.chachel.keymanager.dto.OperationListDTO
+import es.chachel.keymanager.dto.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
 import org.springframework.http.*
@@ -108,12 +106,34 @@ class ReswueService {
 
         val request = HttpEntity(null, headers)
         val response: ResponseEntity<OperationListDTO> = restTemplate.exchange(
-            entryPoint.plus(endpointOperations),
+            entryPoint.plus(endpointOperations).plus("?active=true"),
             HttpMethod.GET,
             request,
             jacksonTypeRef<OperationListDTO>()
         )
+        if(!response.body?.links?.next.isNullOrEmpty()){
+            val finalList:List<Data>? = response.body?.data?.plus(getNextOperationList(response.body?.links?.next!!, token))
+            return OperationListDTO(finalList!!, response.body?.links!!, response.body?.meta!!)
+        }
         return response.body
+    }
+
+    fun getNextOperationList(url:String, token: String): List<Data> {
+        val headers = HttpHeaders()
+        headers.set("Authorization", "Bearer ".plus(token))
+
+        val request = HttpEntity(null, headers)
+        val response: ResponseEntity<OperationListDTO> = restTemplate.exchange(
+            url.plus("&active=true"),
+            HttpMethod.GET,
+            request,
+            jacksonTypeRef<OperationListDTO>()
+        )
+        if(!response.body?.links?.next.isNullOrEmpty()){
+            val finalList:List<Data>? = response.body?.data?.plus(getNextOperationList(response.body?.links?.next!!, token))
+            return finalList!!
+        }
+        return response.body?.data!!
     }
 
     fun getAgentInfo(token: String): AgentInfoDTO? {
@@ -128,5 +148,42 @@ class ReswueService {
             jacksonTypeRef<AgentInfoDTO>()
         )
         return response.body
+    }
+
+    fun getPortalList(token: String, operationSlug: String): PortalDTO? {
+        val headers = HttpHeaders()
+        headers.set("Authorization", "Bearer ".plus(token))
+
+        val request = HttpEntity(null, headers)
+        val response: ResponseEntity<PortalDTO> = restTemplate.exchange(
+            entryPoint.plus(endpointOperations)
+                .plus(operationSlug).plus("/portal"),
+            HttpMethod.GET,
+            request,
+            jacksonTypeRef<PortalDTO>()
+        )
+        if(!response.body?.links?.next.isNullOrEmpty()){
+            val finalList:List<PortalData>? = response.body?.data?.plus(getNextPortalList(response.body?.links?.next!!, token))
+            return PortalDTO(finalList!!, response.body?.links!!, response.body?.meta!!)
+        }
+        return response.body
+    }
+
+    fun getNextPortalList(url:String, token: String): List<PortalData> {
+        val headers = HttpHeaders()
+        headers.set("Authorization", "Bearer ".plus(token))
+
+        val request = HttpEntity(null, headers)
+        val response: ResponseEntity<PortalDTO> = restTemplate.exchange(
+            url,
+            HttpMethod.GET,
+            request,
+            jacksonTypeRef<PortalDTO>()
+        )
+        if(!response.body?.links?.next.isNullOrEmpty()){
+            val finalList:List<PortalData>? = response.body?.data?.plus(getNextPortalList(response.body?.links?.next!!, token))
+            return finalList!!
+        }
+        return response.body?.data!!
     }
 }

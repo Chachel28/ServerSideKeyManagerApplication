@@ -13,8 +13,11 @@ data class Portal(
         var latitude: Float = 0f,
         var longitude: Float = 0f,
         var city: String = "",
-        var province: String = ""
+        var province: String = "",
+        var guid: String = ""
 )
 
 @Repository
-interface PortalRepository:JpaRepository<Portal, Int>
+interface PortalRepository:JpaRepository<Portal, Int> {
+        fun findByGuid(guid: String): Portal?
+}

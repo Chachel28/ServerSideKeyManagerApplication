@@ -1,6 +1,7 @@
 package es.chachel.keymanager.rest.controller
 
 import es.chachel.keymanager.db.KeyPerUser
+import es.chachel.keymanager.db.Portal
 import es.chachel.keymanager.db.User
 import es.chachel.keymanager.dto.*
 import es.chachel.keymanager.security.WebSecurityConfiguration
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.util.*
 import java.util.logging.Logger
+import kotlin.collections.ArrayList
 
 @RestController
 @RequestMapping("/api/v1")
@@ -39,7 +41,7 @@ class RestController(
     fun getUser(@PathVariable username: String): ResponseEntity<UserDTO> {
         val user = dbService.getUser(username)
         val token = dbService.getAutToken(user.user_id)
-        if(!token.isNullOrEmpty()){
+        if (!token.isNullOrEmpty()) {
             val agentInfo = reswueService.getAgentInfo(token)
             user.avatar = agentInfo?.avatar!!
         }
@@ -87,6 +89,24 @@ class RestController(
     @GetMapping("/operations/{id}")
     fun getOperationList(@PathVariable id: Int): ResponseEntity<OperationListDTO> {
         val token = dbService.getAutToken(id)
-        return ResponseEntity.ok(reswueService.getOperationList(token!!))
+        if (token.isNullOrEmpty()) {
+            return ResponseEntity.notFound().build()
+        }
+        return ResponseEntity.ok(reswueService.getOperationList(token))
+    }
+
+    @GetMapping("/operations/{id}/{operationSlug}")
+    fun getPortalList(@PathVariable id: Int, @PathVariable operationSlug: String): ResponseEntity<PortalDTO> {
+        val token = dbService.getAutToken(id)
+        if (token.isNullOrEmpty()) {
+            return ResponseEntity.notFound().build()
+        }
+        val portalList = reswueService.getPortalList(token, operationSlug)
+        portalList?.data?.forEach { portalData ->
+            if (!dbService.checkPortal(portalData.guid)) {
+                dbService.savePortal(portalData)
+            }
+        }
+        return ResponseEntity.ok(portalList)
     }
 }
