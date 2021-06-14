@@ -28,7 +28,6 @@ class WebSecurityConfiguration(
         httpSecurity.cors().and().csrf().disable()
             .authorizeRequests()
             .antMatchers(HttpMethod.POST, "/api/v1/user").permitAll()
-            .antMatchers(HttpMethod.GET, "/api/v1/user").permitAll()
             .antMatchers(HttpMethod.GET, "/getUrlReswue.html").permitAll()
             .anyRequest().authenticated()
             .and().addFilter(AuthenticationRequest(authenticationManager()))

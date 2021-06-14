@@ -21,3 +21,4 @@ data class Portal(
 interface PortalRepository:JpaRepository<Portal, Int> {
         fun findByGuid(guid: String): Portal?
 }
+

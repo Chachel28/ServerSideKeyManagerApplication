@@ -36,3 +36,20 @@ data class PortalMeta(
     val to: Int,
     val total: Int
 )
+
+data class PortalListDTO(
+    val data: List<PortalListItem>,
+    val links: PortalLinks,
+    val meta: PortalMeta
+)
+
+data class PortalListItem(
+    var portal_id: Int = 0,
+    var portal_name: String = "",
+    var latitude: Float = 0f,
+    var longitude: Float = 0f,
+    var city: String = "",
+    var province: String = "",
+    var guid: String = "",
+    var keys:Int = 0
+)
