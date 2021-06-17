@@ -31,3 +31,4 @@ build/
 
 *.properties
 docker-compose.yml
+*.html
