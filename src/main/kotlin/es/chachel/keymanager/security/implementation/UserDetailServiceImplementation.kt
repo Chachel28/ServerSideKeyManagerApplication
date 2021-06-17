@@ -14,7 +14,7 @@ class UserDetailServiceImpl(private val usersRepository: UserRepository) : UserD
 
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails {
-        val user:es.chachel.keymanager.db.User = usersRepository.findByUsername(username)
+        val user:es.chachel.keymanager.db.User = usersRepository.findByUsername(username)!!
         return User(user.username, user.password, Collections.emptyList())
     }
 

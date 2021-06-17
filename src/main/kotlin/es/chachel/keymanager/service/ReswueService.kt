@@ -111,11 +111,15 @@ class ReswueService {
             request,
             jacksonTypeRef<OperationListDTO>()
         )
-        if(!response.body?.links?.next.isNullOrEmpty()){
-            val finalList:List<Data>? = response.body?.data?.plus(getNextOperationList(response.body?.links?.next!!, token))
-            return OperationListDTO(finalList!!, response.body?.links!!, response.body?.meta!!)
+        if(response.statusCode.is4xxClientError){
+            return null
+        }else{
+            if(!response.body?.links?.next.isNullOrEmpty()){
+                val finalList:List<Data>? = response.body?.data?.plus(getNextOperationList(response.body?.links?.next!!, token))
+                return OperationListDTO(finalList!!, response.body?.links!!, response.body?.meta!!)
+            }
+            return response.body
         }
-        return response.body
     }
 
     fun getNextOperationList(url:String, token: String): List<Data> {
@@ -147,6 +151,9 @@ class ReswueService {
             request,
             jacksonTypeRef<AgentInfoDTO>()
         )
+        if (response.statusCode.is4xxClientError){
+            return null
+        }
         return response.body
     }
 

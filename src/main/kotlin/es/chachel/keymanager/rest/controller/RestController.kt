@@ -21,10 +21,15 @@ class RestController(
 ) {
 
     @PostMapping("/user")
-    fun saveUser(@RequestBody user: User): ResponseEntity<User> {
+    fun saveUser(@RequestBody user: User): ResponseEntity<Any> {
         user.password = bCryptPasswordEncoder.encode(user.password)
-        val newUser = dbService.saveUser(user)
-        return ResponseEntity.ok(newUser)
+        val userCreated = dbService.saveUser(user)
+        if(userCreated.user_id == -1){
+            return ResponseEntity.status(406).build()
+        }else if(userCreated.user_id == -2){
+            return ResponseEntity.status(407).build()
+        }
+        return ResponseEntity.ok().build()
     }
 
     @GetMapping("/user/{username}")
@@ -57,6 +62,7 @@ class RestController(
 
     @GetMapping("/isReswueOutdated/{username}")
     fun isReswueOutdated(@PathVariable username: String): ResponseEntity<Boolean> {
+        reswueService.getAgentInfo(dbService.getAutToken(dbService.getUser(username).user_id)!!) ?: return ResponseEntity.notFound().build()
         val expireDate = dbService.getExpireDate(username)
         if (expireDate != null) {
             return if (Date.from(Instant.now()).after(expireDate)) {
@@ -83,7 +89,12 @@ class RestController(
         if (token.isNullOrEmpty()) {
             return ResponseEntity.notFound().build()
         }
-        return ResponseEntity.ok(reswueService.getOperationList(token))
+        val list = reswueService.getOperationList(token)
+        return if(list != null){
+            ResponseEntity.ok(list)
+        }else{
+            ResponseEntity.status(401).build()
+        }
     }
 
     @GetMapping("/operations/{id}/{operationSlug}")

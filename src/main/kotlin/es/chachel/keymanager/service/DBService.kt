@@ -22,7 +22,7 @@ class DBService(
 
     fun saveToken(body: AccessTokenResponseDTO?, username: String) {
         val expireDate = calculateExpireDate()
-        val userId = userRepository.findByUsername(username).user_id
+        val userId = userRepository.findByUsername(username)!!.user_id
         userRepository.updateAccessAndRefreshToken(userId, body?.access_token, body?.refresh_token, expireDate)
     }
 
@@ -33,12 +33,12 @@ class DBService(
     }
 
     fun getExpireDate(username: String): Date? {
-        val user = userRepository.findByUsername(username)
+        val user = userRepository.findByUsername(username)!!
         return user.expireDate
     }
 
     fun getRefreshToken(username: String): String {
-        return userRepository.findByUsername(username).refresh_token
+        return userRepository.findByUsername(username)!!.refresh_token
     }
 
     fun getAutToken(id: Int): String? {
@@ -46,15 +46,19 @@ class DBService(
     }
 
     fun saveUser(user: User): User {
+        val repeatedUserName = userRepository.findByUsername(user.username)
+        if(repeatedUserName != null){
+            return User(user_id = -1)
+        }
+        val repeatedEmail = userRepository.findByEmail(user.email)
+        if(repeatedEmail != null){
+            return User(user_id = -2)
+        }
         return userRepository.save(user)
     }
 
-    fun getAllUsers(): List<User> {
-        return userRepository.findAll()
-    }
-
     fun getUser(username: String): UserDTO {
-        val user = userRepository.findByUsername(username)
+        val user = userRepository.findByUsername(username)!!
         return UserDTO(user.user_id, user.username, user.email, user.validated)
     }
 
@@ -151,7 +155,7 @@ class DBService(
     }
 
     fun getRoutesOfUser(username: String): List<RouteDTOFlutter>? {
-        val user = userRepository.findByUsername(username)
+        val user = userRepository.findByUsername(username)!!
         val listOfRoutes = routeRepository.findByUser(user)
         val listOfRouteStops = routeStopRepository.findByUser(user)
         return if (listOfRoutes.isNullOrEmpty()) {
@@ -254,7 +258,7 @@ class DBService(
     }
 
     fun saveRoute(routeDTO: RouteDTO): RouteDTO {
-        val user = userRepository.findByUsername(routeDTO.user.username)
+        val user = userRepository.findByUsername(routeDTO.user.username)!!
         val route = routeRepository.save(Route(name = routeDTO.name, user = user))
         return RouteDTO(
             route_id = route.route_id,
@@ -269,7 +273,7 @@ class DBService(
     }
 
     fun saveRouteStop(routeStopDTO: RouteStopDTO): RouteStopDTO? {
-        val userStop = userRepository.findByUsername(routeStopDTO.user.username)
+        val userStop = userRepository.findByUsername(routeStopDTO.user.username)!!
         val route = routeRepository.findById(routeStopDTO.route.route_id)
         if (route.isEmpty) {
             return null
@@ -316,7 +320,7 @@ class DBService(
     }
 
     fun getPortalKeysByUser(username: String): List<KeyPerUser>? {
-        val user = userRepository.findByUsername(username)
+        val user = userRepository.findByUsername(username)!!
         val keys = keyPerUserRepository.findByUser(user)
         if (keys != null) {
             return keys
